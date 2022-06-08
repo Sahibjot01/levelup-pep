@@ -1,0 +1,63 @@
+class Solution {
+    //usig int arrays ans bit manp. to make validate o(1)
+    int[] rows = new int[10];
+    int[] cols = new int[10];
+    int[][] grid = new int[3][3];
+    public void solveSudoku(char[][] board) {
+        ArrayList<Integer> list = new ArrayList<>();
+        for(int i = 0; i<9; i++){
+            for(int j = 0; j<9; j++){
+                if(board[i][j] == '.'){
+                    list.add(i*9 + j);
+                }else{
+                    int num = board[i][j] - '0';
+                    int mask = 1<<num;
+                    rows[i] ^= mask;
+                    cols[j] ^= mask;
+                    grid[i/3][j/3] ^= mask;
+                }
+            }
+        }
+        solve(board,list,0);
+    }
+    public boolean solve(char[][] board, ArrayList<Integer> list,int idx){
+        if(idx == list.size()){
+            return true;
+        }
+        int r = list.get(idx)/9;
+        int c = list.get(idx)%9;
+        for(int num = 1; num<=9; num++){
+            int mask = 1<<num;
+            if((rows[r]&mask)==0 && (cols[c]&mask)==0 && (grid[r/3][c/3]&mask)==0){
+                rows[r] ^= mask;
+                cols[c] ^= mask;
+                grid[r/3][c/3] ^= mask;
+                board[r][c] = (char)(num + '0');
+                if(solve(board,list,idx+1) == true){
+                    return true;
+                }
+                rows[r] ^= mask;
+                cols[c] ^= mask;
+                grid[r/3][c/3] ^= mask;
+                board[r][c] = '.';
+            }
+        }
+        return false;
+    }
+    public boolean isSafe(char[][] board, int r,int c, int num){
+        for(int i = 0; i<9; i++){
+            if(num == board[i][c] - '0') return false;
+        }
+        for(int j = 0; j<9; j++){
+            if(num == board[r][j] - '0') return false;
+        }
+        r = (r/3)*3; 
+        c = (c/3)*3;
+        for(int i = 0; i<3; i++){
+            for(int j = 0; j<3; j++){
+                if(num == board[r+i][c+j] - '0') return false;
+            }
+        }
+        return true;
+    }
+}

@@ -1,3 +1,4 @@
+import java.util.*;
 public class l004Queens{
 
     //question 1 
@@ -173,7 +174,127 @@ public class l004Queens{
     }
     //for 4x4 total combination to place n Q was 2 ab perm. hai to 2*4! (4! to arrange 4 queens) 2*4! => 2*24 =  48 total permutation
     //=========================================================================================================================================
- 
+
+    //Question 7 sudoku solver
+    public void solveSudoku(char[][] board) {
+        ArrayList<Integer> list = new ArrayList<>();
+        //arraylist to map vacant cell (also r,c ko idx se map kiya using idx = r*9 + c)
+        for(int i = 0; i<9; i++){
+            for(int j = 0; j<9; j++){
+                if(board[i][j] == '.'){
+                    list.add(i*9 + j);
+                }
+            }
+        }
+        solve(board,list,0);
+    }
+    public boolean solve(char[][] board, ArrayList<Integer> list,int idx){
+        if(idx == list.size()){
+            return true;
+        }
+        int r = list.get(idx)/9;
+        int c = list.get(idx)%9;
+        for(int num = 1; num<=9; num++){
+            if(isSafe(board,r,c,num) == true){
+                board[r][c] = (char)(num + '0');
+                if(solve(board,list,idx+1) == true){
+                    return true;
+                }
+                board[r][c] = '.';
+            }
+        }
+        return false;
+    }
+    //function to check can we put num at (r,c) in board
+    public boolean isSafe(char[][] board, int r,int c, int num){
+        for(int i = 0; i<9; i++){
+            if(num == board[i][c] - '0') return false;
+        }
+        for(int j = 0; j<9; j++){
+            if(num == board[r][j] - '0') return false;
+        }
+        r = (r/3)*3; 
+        c = (c/3)*3;
+        for(int i = 0; i<3; i++){
+            for(int j = 0; j<3; j++){
+                if(num == board[r+i][c+j] - '0') return false;
+            }
+        }
+        return true;
+    }
+
+    //=========================================================================================================================================
+    
+    //Question 8 crypto (send + more = money)
+    static String str1 = "send", str2 = "more", str3 = "money";
+    static boolean[] isNumUsed = new boolean[10];
+    static int[] mapping = new int[26];
+
+    static void crypto(){
+        //find unique char in both strings
+        String str = str1+str2+str3;
+        int[] freq = new int[26];
+        for(int i = 0; i<str.length(); i++){
+            freq[str.charAt(i)-'a']++;
+        }
+        String uniqueStr = "";
+        for(int i = 0; i<26; i++){
+            if(freq[i]>0) uniqueStr += (char)(i+'a');
+        }
+        if(uniqueStr.length()>10) return;
+        System.out.println(uniqueStr);
+        Arrays.fill(mapping, -1);
+        System.out.println(solveCrypto(0,uniqueStr));
+        // for(int i = 0; i<26; i++){
+        //     char ch = (char)(i+'a');
+        //     System.out.print(ch + " => " + mapping[i] + " ");
+        // }
+    }
+    static int solveCrypto(int idx, String uniqueStr){
+        if(idx == uniqueStr.length()){
+            // System.out.println(uniqueStr);
+            if(validate() == true){
+                return 1;
+            }
+            return 0;
+        }
+        int count = 0;
+        for(int i = 0; i<10; i++){
+            if(isNumUsed[i] == false){
+                isNumUsed[i] = true;
+                mapping[uniqueStr.charAt(idx) - 'a'] = i;
+                count += solveCrypto(idx+1,uniqueStr);
+                mapping[uniqueStr.charAt(idx) - 'a'] = -1;
+                isNumUsed[i] = false;
+            }
+        }
+        return count;
+    }
+    static long stringToNumber(String str){
+        long res =0;
+        for(int i = 0; i<str.length(); i++){
+            res = res*10 + mapping[str.charAt(i) - 'a'];
+        }
+        return res;
+    }
+    static boolean validate(){
+        if(mapping[str1.charAt(0) - 'a'] == 0 || 
+           mapping[str2.charAt(0) - 'a'] == 0 || 
+           mapping[str3.charAt(0) - 'a']==0) return false;
+
+
+        long n1 = stringToNumber(str1);
+        long n2 = stringToNumber(str2);
+        long n3 = stringToNumber(str3);
+        if(n1 + n2 == n3){
+            System.out.println(n1);
+            System.out.println(n2);
+            System.out.println(n3);
+            
+            return true;
+        }
+        return false;
+    }
     public static void main(String[] args) {
         // System.out.println("sahib");
         boolean[][] boxes = new boolean[4][4];
@@ -185,6 +306,7 @@ public class l004Queens{
         // System.out.println(queenPermutation2D(0, boxes, ""));
         // System.out.println(queenCombinationLeetcode(4,0,boxes,""));
         // System.out.println(queenPermutationLeetcode(4,boxes,""));
+        crypto();
         
     }
 }

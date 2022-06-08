@@ -1,0 +1,56 @@
+class Solution {
+    //usig boolean arrays to make validate o(1)
+    boolean[][] rows = new boolean[10][10];
+    boolean[][] cols = new boolean[10][10];
+    boolean[][][] grid = new boolean[3][3][10];
+    public void solveSudoku(char[][] board) {
+        ArrayList<Integer> list = new ArrayList<>();
+        for(int i = 0; i<9; i++){
+            for(int j = 0; j<9; j++){
+                if(board[i][j] == '.'){
+                    list.add(i*9 + j);
+                }else{
+                    int num = board[i][j] - '0';
+                    rows[i][num] = cols[j][num] = grid[i/3][j/3][num] = true;
+                }
+            }
+        }
+        solve(board,list,0);
+    }
+    public boolean solve(char[][] board, ArrayList<Integer> list,int idx){
+        if(idx == list.size()){
+            return true;
+        }
+        int r = list.get(idx)/9;
+        int c = list.get(idx)%9;
+        for(int num = 1; num<=9; num++){
+            if(!rows[r][num] && !cols[c][num] && !grid[r/3][c/3][num]){
+                
+                rows[r][num] = cols[c][num] = grid[r/3][c/3][num] = true;
+                board[r][c] = (char)(num + '0');
+                if(solve(board,list,idx+1) == true){
+                    return true;
+                }
+                rows[r][num] = cols[c][num] = grid[r/3][c/3][num] = false;
+                board[r][c] = '.';
+            }
+        }
+        return false;
+    }
+    public boolean isSafe(char[][] board, int r,int c, int num){
+        for(int i = 0; i<9; i++){
+            if(num == board[i][c] - '0') return false;
+        }
+        for(int j = 0; j<9; j++){
+            if(num == board[r][j] - '0') return false;
+        }
+        r = (r/3)*3; 
+        c = (c/3)*3;
+        for(int i = 0; i<3; i++){
+            for(int j = 0; j<3; j++){
+                if(num == board[r+i][c+j] - '0') return false;
+            }
+        }
+        return true;
+    }
+}
